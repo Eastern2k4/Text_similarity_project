@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Text Similarity System</title>
+</head>
+<body>
+    <h1>Text Similarity System 🚀</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            {{ form.text1.label_tag }}
+            <br>
+            {{ form.text1 }}
+        </div>
+
+        <br>
+
+        <div>
+            {{ form.text2.label_tag }}
+            <br>
+            {{ form.text2 }}
+        </div>
+
+        <br>
+
+        <button type="submit">So sánh</button>
+    </form>
+
+    {% if result %}
+        <hr>
+        <h2>Kết quả</h2>
+        <p><strong>Độ tương đồng:</strong> {{ result.score }}%</p>
+        <p><strong>Đánh giá:</strong> {{ result.label }}</p>
+    {% endif %}
+</body>
+</html>
