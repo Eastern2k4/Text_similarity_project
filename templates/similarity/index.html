@@ -143,6 +143,7 @@
             font-size: 0.9rem;
             max-height: 100px;
             overflow-y: auto;
+            color: #212529;
         }
 
         .text-preview strong {
@@ -277,14 +278,27 @@
             loadingSpinner.style.display = 'inline-block';
 
             // Fetch random texts from API
-            fetch('/api/generate-texts/')
+            fetch('/api/generate-texts/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
                 .then(response => {
+                    console.log('Response status:', response.status);
+                    
                     if (!response.ok) {
-                        throw new Error('Network response was not ok');
+                        return response.text().then(text => {
+                            console.error('Response body:', text);
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        });
                     }
+                    
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Data received:', data);
+                    
                     if (data.success) {
                         // Fill in the text fields
                         text1Input.value = data.text1;
@@ -297,12 +311,12 @@
                         // Show success feedback
                         showNotification('✓ Đã tải thành công!', 'success');
                     } else {
-                        showNotification('Lỗi: ' + data.error, 'danger');
+                        showNotification('Lỗi: ' + (data.error || 'Không xác định'), 'danger');
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Không thể tải dữ liệu. Vui lòng thử lại!', 'danger');
+                    console.error('Fetch Error:', error);
+                    showNotification('Không thể tải dữ liệu. ' + error.message, 'danger');
                 })
                 .finally(() => {
                     // Hide loading state
