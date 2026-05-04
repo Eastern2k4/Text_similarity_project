@@ -1,39 +1,335 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Text Similarity System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Similarity System - So sánh văn bản</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 20px 20px 0 0 !important;
+            border: none;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .card-header i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .form-floating > label {
+            color: #6c757d;
+        }
+
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(17, 153, 142, 0.3);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4);
+            background: linear-gradient(135deg, #0f8678 0%, #2dcd6a 100%);
+        }
+
+        .generate-btn {
+            margin: 1.5rem 0;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .result-score {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .result-label {
+            font-size: 1.5rem;
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .similarity-high { background: #28a745; }
+        .similarity-medium { background: #ffc107; color: #212529; }
+        .similarity-low { background: #dc3545; }
+
+        .text-preview {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .text-preview strong {
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .card-header h1 {
+                font-size: 2rem;
+            }
+
+            .result-score {
+                font-size: 2.5rem;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
-    <h1>Text Similarity System 🚀</h1>
+    <div class="container py-5">
+        <div class="card animate-fade-in">
+            <div class="card-header">
+                <i class="fas fa-search-plus"></i>
+                <h1>Text Similarity System</h1>
+                <p class="mb-0">Công cụ so sánh độ tương tự giữa hai đoạn văn bản</p>
+            </div>
 
-    <form method="post">
-        {% csrf_token %}
+            <div class="card-body p-4">
+                <form method="post" id="similarityForm">
+                    {% csrf_token %}
 
-        <div>
-            {{ form.text1.label_tag }}
-            <br>
-            {{ form.text1 }}
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="form-floating">
+                                {{ form.text1 }}
+                                <label for="{{ form.text1.id_for_label }}">
+                                    <i class="fas fa-file-alt me-2"></i>{{ form.text1.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="form-floating">
+                                {{ form.text2 }}
+                                <label for="{{ form.text2.id_for_label }}">
+                                    <i class="fas fa-file-alt me-2"></i>{{ form.text2.label }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center generate-btn">
+                        <button type="button" class="btn btn-success btn-lg" id="generateBtn" onclick="generateRandomTexts()">
+                            <i class="fas fa-magic me-2"></i>Tự sinh văn bản ngẫu nhiên
+                            <span class="loading" id="loadingSpinner">
+                                <span class="spinner-border spinner-border-sm ms-2"></span>
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-balance-scale me-2"></i>So sánh ngay
+                        </button>
+                    </div>
+                </form>
+
+                {% if result %}
+                    <div class="result-card animate-fade-in">
+                        <h3 class="mb-3">
+                            <i class="fas fa-chart-line me-2"></i>Kết quả phân tích
+                        </h3>
+
+                        <div class="result-score">
+                            {{ result.score }}%
+                        </div>
+
+                        <div class="result-label
+                            {% if result.score >= 70 %}similarity-high
+                            {% elif result.score >= 40 %}similarity-medium
+                            {% else %}similarity-low{% endif %}">
+                            <i class="fas fa-star me-2"></i>{{ result.label }}
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="text-preview">
+                                    <strong><i class="fas fa-quote-left me-1"></i>Văn bản 1:</strong><br>
+                                    {{ result.text1|truncatechars:100 }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="text-preview">
+                                    <strong><i class="fas fa-quote-left me-1"></i>Văn bản 2:</strong><br>
+                                    {{ result.text2|truncatechars:100 }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-        <br>
-
-        <div>
-            {{ form.text2.label_tag }}
-            <br>
-            {{ form.text2 }}
+        <div class="text-center mt-4 text-white">
+            <small>
+                <i class="fas fa-brain me-1"></i>
+                Được hỗ trợ bởi Sentence Transformers & Machine Learning
+            </small>
         </div>
+    </div>
 
-        <br>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        <button type="submit">So sánh</button>
-    </form>
+    <script>
+        function generateRandomTexts() {
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const text1Input = document.getElementById('id_text1');
+            const text2Input = document.getElementById('id_text2');
 
-    {% if result %}
-        <hr>
-        <h2>Kết quả</h2>
-        <p><strong>Độ tương đồng:</strong> {{ result.score }}%</p>
-        <p><strong>Đánh giá:</strong> {{ result.label }}</p>
-    {% endif %}
+            // Show loading state
+            generateBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+
+            // Fetch random texts from API
+            fetch('/api/generate-texts/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Fill in the text fields
+                        text1Input.value = data.text1;
+                        text2Input.value = data.text2;
+                        
+                        // Trigger change event to update form
+                        text1Input.dispatchEvent(new Event('change', { bubbles: true }));
+                        text2Input.dispatchEvent(new Event('change', { bubbles: true }));
+                        
+                        // Show success feedback
+                        showNotification('✓ Đã tải thành công!', 'success');
+                    } else {
+                        showNotification('Lỗi: ' + data.error, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Không thể tải dữ liệu. Vui lòng thử lại!', 'danger');
+                })
+                .finally(() => {
+                    // Hide loading state
+                    generateBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                });
+        }
+
+        function showNotification(message, type) {
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.setAttribute('role', 'alert');
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            // Insert after card header
+            const cardBody = document.querySelector('.card-body');
+            cardBody.insertBefore(alert, cardBody.firstChild);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
 </body>
 </html>
