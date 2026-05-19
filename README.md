@@ -1,13 +1,13 @@
 # Text Similarity Project
 
-Ung dung web Django dung de so sanh do tuong tu giua hai doan van ban. Project hien tai su dung TF-IDF cua scikit-learn de bien doi van ban thanh vector, sau do tinh cosine similarity va hien thi ket qua theo phan tram. Cau hinh TF-IDF da duoc nang cap tu char 1-3 gram sang mo hinh ket hop word n-gram va character n-gram.
+Ung dung web Django dung de so sanh do tuong tu giua hai doan van ban. Project hien tai su dung model TF-IDF tu train tren dataset local, ket hop word n-gram, character n-gram va mot lop scoring tu code de tinh do tuong tu. Dataset co cot `is_duplicate` duoc dung de calibrate trong so va nguong danh gia.
 
 ## Tinh nang
 
 - Nhap hai doan van ban va tinh do tuong tu.
 - Hien thi diem similarity theo phan tram va nhan danh gia.
 - Tao nhanh hai cau hoi ngau nhien tu dataset `ml/datasets/questions.csv`.
-- Co script train TF-IDF model va luu artifact tai `ml/artifacts/tfidf_model.pkl`.
+- Co script train TF-IDF model, calibrate threshold va luu artifact tai `ml/artifacts/tfidf_model.pkl`.
 
 ## Cong nghe
 
@@ -32,6 +32,7 @@ text_similarity_project/
 |   |   `-- __init__.py
 |   |-- services/
 |   |   |-- similarity_service.py         # Load TF-IDF model va tinh similarity
+|   |   |-- tfidf_similarity_model.py     # Model scoring TF-IDF tu code
 |   |   `-- text_preprocessing.py         # Lam sach van ban
 |   |-- admin.py
 |   |-- apps.py
@@ -123,7 +124,7 @@ $env:PYTHONIOENCODING = "utf-8"
 python ml\training\train_model.py
 ```
 
-Script se doc `questions.csv`, train `FeatureUnion` gom 2 `TfidfVectorizer`, va luu model vao:
+Script se doc `questions.csv`, train TF-IDF tren cac cau hoi local, dung `is_duplicate` de calibrate scoring/threshold neu cot nay ton tai, va luu model vao:
 
 ```text
 ml/artifacts/tfidf_model.pkl
@@ -131,10 +132,12 @@ ml/artifacts/tfidf_model.pkl
 
 Model sau khi train se gom:
 
-- `FeatureUnion` gom 2 nhanh TF-IDF.
-- Word TF-IDF voi `ngram_range=(1, 2)`, toi da 20,000 features.
-- Character word-boundary TF-IDF voi `analyzer="char_wb"`, `ngram_range=(3, 5)`, toi da 30,000 features.
-- Tong toi da 50,000 features.
+- Lop `TfidfSimilarityModel` tu code trong project.
+- Word TF-IDF voi `ngram_range=(1, 3)`, toi da 30,000 features.
+- Character word-boundary TF-IDF voi `analyzer="char_wb"`, `ngram_range=(3, 6)`, toi da 50,000 features.
+- Cac feature phu nhu token containment va length similarity.
+- Trong so scoring va nguong label duoc calibrate tu `is_duplicate`.
+- Metadata duoc luu tai `ml/artifacts/tfidf_model.metadata.json`.
 
 ## Chay ung dung
 
@@ -213,24 +216,50 @@ Vi endpoint nay hien doc CSV trong request, dataset lon co the lam request cham.
 Quy trinh hien tai:
 
 1. Lam sach van ban bang `clean_text`.
-2. Load upgraded TF-IDF vectorizer tu `ml/artifacts/tfidf_model.pkl` neu co.
-3. Neu model cu khong dung cau hinh moi, app se can train lai va tao vectorizer fallback tam thoi.
-4. Transform hai van ban thanh vector.
-5. Tinh cosine similarity.
-6. Doi ket qua sang phan tram.
+2. Load self-trained TF-IDF similarity model tu `ml/artifacts/tfidf_model.pkl`.
+3. Transform hai van ban bang vectorizer da train, khong fit tren input cua user.
+4. Tinh diem tu word cosine, char cosine va cac feature lexical tu code.
+5. Ap dung trong so/threshold da calibrate.
+6. Doi ket qua sang phan tram va gan nhan hien thi.
 
-Fallback vectorizer chi de app khong bi dung khi chua co model hop le. No fit truc tiep tren 2 input dang so sanh, nen ket qua khong on dinh va khong nen xem la ket qua model da train.
+Vectorizer da train hien tai ket hop 2 nhom TF-IDF bang `FeatureUnion`:
 
-Vectorizer da train hien tai ket hop 2 nhom feature bang `FeatureUnion`:
-
-- `word` analyzer voi `ngram_range=(1, 2)`, toi da 20,000 features.
-- `char_wb` analyzer voi `ngram_range=(3, 5)`, toi da 30,000 features.
+- `word` analyzer voi `ngram_range=(1, 3)`, toi da 30,000 features.
+- `char_wb` analyzer voi `ngram_range=(3, 6)`, toi da 50,000 features.
 
 Y nghia:
 
-- Word 1-2 grams giup bat cac tu va cum tu quan trong.
-- Char 3-5 grams giup chiu loi chinh ta, bien the tu, va cac cau co overlap ngan.
-- Ket hop hai nhom nay thuong on dinh hon char 1-3 grams vi khong chi nhin vao mau ky tu rat ngan.
+- Word n-gram giup bat cac tu va cum tu quan trong.
+- Char n-gram giup chiu loi chinh ta, bien the tu, va cac cau co overlap ngan.
+- Token containment va length similarity bo sung them tin hieu lexical.
+- Model phu hop de uoc luong do lien quan/cung chu de va mot phan kha nang trung y.
+
+Nhan ket qua trong artifact hien tai:
+
+- `>= 70%`: Rat giong nhau
+- `>= 36%`: Co lien quan
+- `< 36%`: Khac nhau
+
+## Danh gia model hien tai
+
+Ket qua sau lan train gan nhat duoc luu trong `ml/artifacts/tfidf_model.metadata.json`:
+
+```text
+Duplicate decision threshold: 41.0%
+Related display threshold: 36.0%
+Very similar threshold: 70.0%
+Holdout accuracy: 62.83%
+Holdout F1-score: 64.28%
+Holdout precision: 49.99%
+Holdout recall: 89.99%
+```
+
+Y nghia khi bao cao:
+
+- Model dang do tot hon ve muc do trung lap tu vung/cum tu va do lien quan giua hai cau.
+- Model chua hieu ngu nghia sau nhu cac semantic model pretrained.
+- Mot so cap cung chu de nhung khac y van co the bi cham diem kha cao.
+- Khong nen trinh bay project la "hieu nghia hoan toan"; nen trinh bay la "uoc luong do tuong dong van ban bang TF-IDF va dac trung tu vung tu xay dung".
 
 ## Ho tro tieng Viet
 
@@ -261,30 +290,28 @@ De cai thien cho tieng Viet:
 
 1. Train lai model bang dataset tieng Viet.
 2. Bo hoac tuy bien `stop_words="english"` neu muon uu tien da ngon ngu.
-3. Can nhac Sentence Transformers multilingual neu can do chinh xac semantic cao hon TF-IDF.
-4. Co the them xu ly tieng Viet rieng, vi du tach tu bang thu vien tieng Viet, neu dataset va bai toan yeu cau.
+3. Them cac feature tu code rieng cho tieng Viet, vi du tach tu, chuan hoa dau cau, va xu ly tu phu dinh.
+4. Tao tap test tieng Viet rieng de do false positive/false negative.
 
-Project hien tai chua dung Sentence Transformers. Neu template/footer hoac text cu con nhac den Sentence Transformers, do la noi dung con sot lai, khong phan anh logic similarity dang chay.
+Project hien tai chua dung Sentence Transformers hay model pretrained. Logic similarity dang chay nam trong `similarity/services/tfidf_similarity_model.py`.
 
 Mot so UI/label tieng Viet trong source hien co the bi loi encoding. `PYTHONIOENCODING=utf-8` co the giup terminal/log hien thi on dinh hon, nhung khong tu dong sua cac chu da bi mojibake trong file source.
 
-Nhan ket qua:
-
-- `>= 70`: Rat giong nhau
-- `>= 40`: Tuong doi giong nhau
-- `< 40`: Khac nhau
-
 ## Chay test
 
-Hien project chua co test thuc su, nhung co the chay lenh Django test:
+Project co mot so test toi thieu cho preprocessing va TF-IDF similarity model. Chay:
 
 ```powershell
 python manage.py test
 ```
 
-Nen bo sung test cho:
+Test hien co bao gom:
 
 - `clean_text`
+- `TfidfSimilarityModel`
+
+Nen bo sung them test cho:
+
 - `calculate_similarity`
 - form validation
 - `POST /`

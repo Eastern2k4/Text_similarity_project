@@ -229,10 +229,7 @@
                             {{ result.score }}%
                         </div>
 
-                        <div class="result-label
-                            {% if result.score >= 70 %}similarity-high
-                            {% elif result.score >= 40 %}similarity-medium
-                            {% else %}similarity-low{% endif %}">
+                        <div class="result-label similarity-{{ result.severity|default:'low' }}">
                             <i class="fas fa-star me-2"></i>{{ result.label }}
                         </div>
 
@@ -258,7 +255,7 @@
         <div class="text-center mt-4 text-white">
             <small>
                 <i class="fas fa-brain me-1"></i>
-                Được hỗ trợ bởi Sentence Transformers & Machine Learning
+                Powered by a self-trained TF-IDF similarity model
             </small>
         </div>
     </div>
