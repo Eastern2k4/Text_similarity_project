@@ -24,6 +24,16 @@ DEFAULT_THRESHOLDS = {
     "very_similar": 72.0,
 }
 
+FEATURE_LABELS = {
+    "word": "TF-IDF word n-gram",
+    "char_wb": "TF-IDF character n-gram",
+    "token_containment": "Từ khóa trùng nhau",
+    "token_jaccard": "Tập từ chung",
+    "length_similarity": "Độ dài văn bản",
+    "sequence": "Chuỗi ký tự gần nhau",
+    "combined": "TF-IDF tổng hợp",
+}
+
 
 def build_tfidf_vectorizer(
     min_df=2,
@@ -139,15 +149,30 @@ class TfidfSimilarityModel:
         return scores
 
     def score(self, text1: str, text2: str) -> float:
-        features = self.feature_scores(text1, text2)
-        weighted_score = sum(
-            features.get(name, 0.0) * weight
-            for name, weight in self.weights.items()
-        )
-        return clamp_score(weighted_score)
+        score_percent, _ = self.score_breakdown(text1, text2)
+        return score_percent / 100
 
     def score_percent(self, text1: str, text2: str) -> float:
         return round(self.score(text1, text2) * 100, 2)
+
+    def score_breakdown(self, text1: str, text2: str) -> tuple[float, list[dict]]:
+        features = self.feature_scores(text1, text2)
+        weighted_score = 0.0
+        breakdown = []
+
+        for name, weight in self.weights.items():
+            feature_score = clamp_score(features.get(name, 0.0))
+            contribution = feature_score * weight
+            weighted_score += contribution
+            breakdown.append({
+                "name": name,
+                "label": FEATURE_LABELS.get(name, name.replace("_", " ").title()),
+                "feature_score": round(feature_score * 100, 2),
+                "weight": round(weight * 100, 2),
+                "contribution": round(contribution * 100, 2),
+            })
+
+        return round(clamp_score(weighted_score) * 100, 2), breakdown
 
     def label_for_score(self, score_percent: float) -> str:
         if score_percent >= self.thresholds.get("very_similar", DEFAULT_THRESHOLDS["very_similar"]):
@@ -164,11 +189,12 @@ class TfidfSimilarityModel:
         return "low"
 
     def predict(self, text1: str, text2: str) -> dict:
-        score_percent = self.score_percent(text1, text2)
+        score_percent, breakdown = self.score_breakdown(text1, text2)
         return {
             "score": score_percent,
             "label": self.label_for_score(score_percent),
             "severity": self.severity_for_score(score_percent),
+            "breakdown": breakdown,
             "text1": text1,
             "text2": text2,
         }

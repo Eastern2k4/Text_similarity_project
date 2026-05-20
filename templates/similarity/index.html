@@ -215,7 +215,11 @@
 
         .result-area {
             display: flex;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
+            gap: 24px;
+            width: 100%;
             padding: 30px 0 4px;
         }
 
@@ -284,6 +288,74 @@
             background: linear-gradient(135deg, #dc2626 0%, #f43f5e 100%);
         }
 
+        .score-breakdown {
+            width: min(1280px, 100%);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+            padding: 22px;
+        }
+
+        .breakdown-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 16px;
+            color: var(--blue-deep);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+
+        .breakdown-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .breakdown-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e6f0ff;
+        }
+
+        .breakdown-row:first-child {
+            padding-top: 0;
+        }
+
+        .breakdown-name {
+            display: block;
+            color: var(--text-main);
+            font-weight: 750;
+        }
+
+        .breakdown-meta {
+            display: block;
+            margin-top: 3px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .breakdown-contribution {
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+
+        .breakdown-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 2px solid #dbeafe;
+            color: var(--blue-deep);
+            font-weight: 850;
+        }
+
         .app-footer {
             display: flex;
             align-items: center;
@@ -322,6 +394,10 @@
 
             .input-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .score-breakdown {
+                width: 100%;
             }
 
             .btn {
@@ -426,6 +502,32 @@
                         <span class="score-value">{{ result.score }}%</span>
                         <span class="score-caption">Similarity</span>
                     </div>
+
+                    {% if result.breakdown %}
+                        <aside class="score-breakdown" aria-label="Cách tính điểm similarity">
+                            <h2 class="breakdown-title">
+                                <i class="fas fa-calculator" aria-hidden="true"></i>
+                                Cách tính điểm
+                            </h2>
+
+                            <div class="breakdown-list">
+                                {% for item in result.breakdown %}
+                                    <div class="breakdown-row">
+                                        <div>
+                                            <span class="breakdown-name">{{ item.label }}</span>
+                                            <span class="breakdown-meta">{{ item.feature_score }}% × trọng số {{ item.weight }}%</span>
+                                        </div>
+                                        <strong class="breakdown-contribution">+{{ item.contribution }}%</strong>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="breakdown-total">
+                                <span>Tổng điểm</span>
+                                <strong>{{ result.score }}%</strong>
+                            </div>
+                        </aside>
+                    {% endif %}
                 </section>
             {% endif %}
         </main>

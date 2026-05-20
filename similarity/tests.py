@@ -60,3 +60,6 @@ class TfidfSimilarityModelTests(SimpleTestCase):
 
         self.assertEqual(result["label"], "Tương đối giống nhau")
         self.assertEqual(result["severity"], "medium")
+        self.assertIn("breakdown", result)
+        self.assertGreater(len(result["breakdown"]), 0)
+        self.assertIn("contribution", result["breakdown"][0])
