@@ -3,7 +3,6 @@ from pathlib import Path
 
 from .tfidf_similarity_model import (
     TfidfSimilarityModel,
-    build_tfidf_vectorizer,
     is_upgraded_vectorizer,
 )
 

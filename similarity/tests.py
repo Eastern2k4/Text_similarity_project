@@ -58,5 +58,5 @@ class TfidfSimilarityModelTests(SimpleTestCase):
             "What is the best way to learn Python programming?",
         )
 
-        self.assertEqual(result["label"], "Có liên quan")
+        self.assertEqual(result["label"], "Tương đối giống nhau")
         self.assertEqual(result["severity"], "medium")

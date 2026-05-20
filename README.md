@@ -237,7 +237,7 @@ Y nghia:
 Nhan ket qua trong artifact hien tai:
 
 - `>= 70%`: Rat giong nhau
-- `>= 36%`: Co lien quan
+- `>= 36%`: Tuong doi giong nhau
 - `< 36%`: Khac nhau
 
 ## Danh gia model hien tai

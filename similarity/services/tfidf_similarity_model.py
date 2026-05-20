@@ -153,7 +153,7 @@ class TfidfSimilarityModel:
         if score_percent >= self.thresholds.get("very_similar", DEFAULT_THRESHOLDS["very_similar"]):
             return "Rất giống nhau"
         if score_percent >= self.thresholds.get("related", DEFAULT_THRESHOLDS["related"]):
-            return "Có liên quan"
+            return "Tương đối giống nhau"
         return "Khác nhau"
 
     def severity_for_score(self, score_percent: float) -> str:
