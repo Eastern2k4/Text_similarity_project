@@ -242,15 +242,18 @@
             border: 2px solid rgba(255, 255, 255, 0.34);
         }
 
-        .result-meter i,
+        .result-state,
         .score-value,
         .score-caption {
             position: relative;
             z-index: 1;
         }
 
-        .result-meter i {
-            font-size: clamp(1.45rem, 2vw, 1.9rem);
+        .result-state {
+            max-width: 78%;
+            font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+            font-weight: 850;
+            line-height: 1.2;
         }
 
         .score-value {
@@ -262,9 +265,10 @@
 
         .score-caption {
             max-width: 78%;
-            font-size: clamp(1rem, 1.8vw, 1.35rem);
+            font-size: 0.92rem;
             font-weight: 800;
             line-height: 1.25;
+            opacity: 0.9;
         }
 
         .meter-high {
@@ -418,15 +422,9 @@
             {% if result %}
                 <section class="result-area" aria-label="Kết quả phân tích">
                     <div class="result-meter meter-{{ result.severity|default:'low' }}">
-                        {% if result.severity == "high" %}
-                            <i class="fas fa-check" aria-hidden="true"></i>
-                        {% elif result.severity == "medium" %}
-                            <i class="fas fa-minus" aria-hidden="true"></i>
-                        {% else %}
-                            <i class="fas fa-xmark" aria-hidden="true"></i>
-                        {% endif %}
+                        <span class="result-state">{{ result.label }}</span>
                         <span class="score-value">{{ result.score }}%</span>
-                        <span class="score-caption">{{ result.label }}</span>
+                        <span class="score-caption">Similarity</span>
                     </div>
                 </section>
             {% endif %}
