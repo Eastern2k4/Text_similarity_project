@@ -32,18 +32,18 @@
         body {
             min-height: 100vh;
             margin: 0;
-            background: var(--blue-gradient-dark);
+            background: linear-gradient(150deg, #f8fbff 0%, #eaf6ff 48%, #dbeafe 100%);
             color: var(--text-main);
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .app-shell {
-            width: min(1760px, calc(100% - 32px));
-            margin: 20px auto;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .app-header,
-        .app-footer,
         .tool-panel,
         .result-panel {
             border: 1px solid var(--line);
@@ -52,16 +52,24 @@
             box-shadow: 0 18px 45px rgba(22, 32, 51, 0.08);
         }
 
+        main {
+            width: min(1760px, calc(100% - 48px));
+            flex: 1;
+            margin: 26px auto;
+        }
+
         .app-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 24px;
-            padding: 24px 30px;
-            margin-bottom: 18px;
-            border-color: rgba(255, 255, 255, 0.28);
-            background: var(--blue-gradient);
+            width: 100%;
+            padding: 24px clamp(24px, 4vw, 76px);
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, transparent 36%),
+                linear-gradient(135deg, #08357f 0%, #0f62fe 52%, #06b6d4 100%);
             color: #ffffff;
+            box-shadow: 0 16px 36px rgba(8, 53, 127, 0.22);
         }
 
         .brand {
@@ -303,10 +311,9 @@
             align-items: center;
             justify-content: space-between;
             gap: 16px;
-            margin-top: 18px;
-            padding: 16px 22px;
-            border-color: rgba(255, 255, 255, 0.24);
-            background: rgba(255, 255, 255, 0.14);
+            width: 100%;
+            padding: 18px clamp(24px, 4vw, 76px);
+            background: linear-gradient(135deg, #08357f 0%, #0f62fe 58%, #06b6d4 100%);
             color: rgba(255, 255, 255, 0.88);
             font-size: 0.95rem;
         }
@@ -320,7 +327,7 @@
         }
 
         @media (max-width: 900px) {
-            .app-shell {
+            main {
                 width: min(100% - 24px, 760px);
                 margin: 16px auto;
             }
