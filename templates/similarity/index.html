@@ -10,17 +10,19 @@
 
     <style>
         :root {
-            --page-bg: #eef3f8;
+            --page-bg: #eff6ff;
             --surface: #ffffff;
-            --surface-soft: #f7f9fc;
-            --text-main: #162033;
-            --text-muted: #657084;
-            --line: #d9e1ec;
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --teal: #0f9f8f;
-            --cyan: #0ea5e9;
-            --result: #5b5bd6;
+            --surface-soft: #f8fbff;
+            --text-main: #0f172a;
+            --text-muted: #5b6b86;
+            --line: #bfdbfe;
+            --primary: #0f62fe;
+            --primary-dark: #084ec4;
+            --primary-soft: #dbeafe;
+            --cyan: #06b6d4;
+            --blue-deep: #0b3b8f;
+            --blue-gradient: linear-gradient(135deg, #0f62fe 0%, #0ea5e9 55%, #06b6d4 100%);
+            --blue-gradient-dark: linear-gradient(135deg, #0b3b8f 0%, #0f62fe 52%, #0ea5e9 100%);
         }
 
         * {
@@ -30,16 +32,14 @@
         body {
             min-height: 100vh;
             margin: 0;
-            background:
-                linear-gradient(90deg, rgba(37, 99, 235, 0.18), transparent 18%, transparent 82%, rgba(91, 91, 214, 0.20)),
-                var(--page-bg);
+            background: var(--blue-gradient-dark);
             color: var(--text-main);
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .app-shell {
-            width: min(1540px, calc(100% - 48px));
-            margin: 28px auto;
+            width: min(1760px, calc(100% - 32px));
+            margin: 20px auto;
         }
 
         .app-header,
@@ -57,8 +57,11 @@
             align-items: center;
             justify-content: space-between;
             gap: 24px;
-            padding: 22px 28px;
+            padding: 24px 30px;
             margin-bottom: 18px;
+            border-color: rgba(255, 255, 255, 0.28);
+            background: var(--blue-gradient);
+            color: #ffffff;
         }
 
         .brand {
@@ -75,8 +78,8 @@
             width: 54px;
             height: 54px;
             border-radius: 8px;
-            background: #e7f1ff;
-            color: var(--primary);
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
             font-size: 1.75rem;
         }
 
@@ -89,7 +92,7 @@
 
         .brand-subtitle {
             margin: 4px 0 0;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.86);
             font-size: 1rem;
         }
 
@@ -98,11 +101,11 @@
             align-items: center;
             gap: 8px;
             white-space: nowrap;
-            border: 1px solid #c7d2fe;
+            border: 1px solid rgba(255, 255, 255, 0.32);
             border-radius: 8px;
             padding: 10px 12px;
-            color: #1e3a8a;
-            background: #eef2ff;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.14);
             font-weight: 650;
         }
 
@@ -117,6 +120,7 @@
             margin-bottom: 18px;
             font-weight: 750;
             font-size: 1.25rem;
+            color: var(--blue-deep);
         }
 
         .input-grid {
@@ -129,7 +133,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #4b5563;
+            color: var(--blue-deep);
             font-weight: 700;
             margin-bottom: 8px;
         }
@@ -149,7 +153,7 @@
         .form-control:focus {
             border-color: var(--primary);
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+            box-shadow: 0 0 0 4px rgba(15, 98, 254, 0.14);
         }
 
         .field-error {
@@ -180,21 +184,27 @@
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: var(--blue-gradient-dark);
             border-color: var(--primary);
-            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+            box-shadow: 0 12px 24px rgba(15, 98, 254, 0.24);
         }
 
         .btn-primary:hover,
         .btn-primary:focus {
-            background: var(--primary-dark);
+            background: linear-gradient(135deg, #08357f 0%, #084ec4 55%, #0284c7 100%);
             border-color: var(--primary-dark);
         }
 
         .btn-success {
-            background: var(--teal);
-            border-color: var(--teal);
-            box-shadow: 0 12px 24px rgba(15, 159, 143, 0.22);
+            background: var(--blue-gradient);
+            border-color: var(--cyan);
+            box-shadow: 0 12px 24px rgba(6, 182, 212, 0.24);
+        }
+
+        .btn-success:hover,
+        .btn-success:focus {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0f62fe 100%);
+            border-color: var(--primary);
         }
 
         .loading {
@@ -213,7 +223,7 @@
             gap: 24px;
             padding: 28px 32px;
             color: #ffffff;
-            background: linear-gradient(135deg, var(--result), #764ba2);
+            background: var(--blue-gradient-dark);
         }
 
         .result-title {
@@ -250,18 +260,19 @@
         }
 
         .similarity-high {
-            background: #dcfce7;
-            color: #166534;
+            background: #dbeafe;
+            color: #0b3b8f;
         }
 
         .similarity-medium {
-            background: #fef3c7;
-            color: #713f12;
+            background: #e0f2fe;
+            color: #075985;
         }
 
         .similarity-low {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
 
         .preview-grid {
@@ -283,7 +294,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            color: #4b5563;
+            color: var(--blue-deep);
             margin-bottom: 8px;
         }
 
@@ -294,12 +305,14 @@
             gap: 16px;
             margin-top: 18px;
             padding: 16px 22px;
-            color: var(--text-muted);
+            border-color: rgba(255, 255, 255, 0.24);
+            background: rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.88);
             font-size: 0.95rem;
         }
 
         .app-footer strong {
-            color: var(--text-main);
+            color: #ffffff;
         }
 
         .alert {
